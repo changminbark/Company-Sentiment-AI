@@ -19,3 +19,13 @@ For the automated function (if I am to implement it), I will use Cron.
 
 I will test whether a classification model (like SVC, KNearestNeighbors, DecisionTree, RandomForest, etc.)or an AI 
 model (like an NLP, Deep Learning Neural Network, etc.).
+
+## Technologies Used
+- npm
+- Node.js
+- Express.js
+- Express Generator (Pug Template Engine)
+- Puppeteer
+- Cron
+- VSCode
+- PyCharm
