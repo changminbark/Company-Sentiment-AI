@@ -43,17 +43,29 @@ getTitles();
 // order (must be declared before being called).
 async function loadLatestTitles(page) {
     // Reset previous titles
-    // const titles = [];
+    const titles = [];
+    const result = [];
 
-
-    const headline = await page.$(".NiLAwe.mi8Lec.jzZQmc.Oc0wGc.R7GTQ.keNKEd.j7vNaf");
-    const title = await headline.$(".DY5T1d.RZIKme");
-    // Evaluates the handle element into the text content.
-    const text = await title.evaluate(x => x.textContent);
+    const headlines = await page.$$(".NiLAwe.mi8Lec.jzZQmc.Oc0wGc.R7GTQ.keNKEd.j7vNaf");
+    for (let i of headlines){
+        titles.push(await i.$$(".DY5T1d.RZIKme"))
+    }
+    for (let j=0; j < titles.length; j++) {
+        for (let k of titles[j]){
+            result.push(await k.evaluate(x => x.textContent));
+            }
+    }
+        
+    // results = await Promise.all(titles.map(async (t) => {
+    //     return await t.evaluate(x => x.textContent);
+    // }))
+    // const title = await headline.$$(".DY5T1d.RZIKme");
+    // // Evaluates the handle element into the text content.
+    // const text = await title.evaluate(x => x.textContent);
     // const recentHeadNews = await page.$$("ipQwMb ekueJc RD0gLb");
     // const recentHeadlines = await recentHeadNews.$$(".hT8rr");
 
-    return text;
+    return result;
 
 
 }
