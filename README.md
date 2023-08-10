@@ -15,6 +15,8 @@ and Puppeteer to parse/scrape the site. If the website doesn't require JS, then 
 
 For the automated function (if I am to implement it), I will use Cron.
 
+NOTE: I might just make both types of scrapers (just for the experience) after finishing the second part (analyzer).
+
 ## Second Part (Analyzer)
 
 I will test whether a classification model (like SVC, KNearestNeighbors, DecisionTree, RandomForest, etc.)or an AI 
