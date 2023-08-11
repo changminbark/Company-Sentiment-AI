@@ -30,7 +30,7 @@ const getTitles = async () => {
     
     //     return text;
     //   });
-    
+
     // console.log(headline);
     
     await browser.close();
@@ -42,20 +42,34 @@ getTitles();
 // Difference between const and function is that function can be declared anywhere and used anywhere while const has to be in chronological
 // order (must be declared before being called).
 async function loadLatestTitles(page) {
-    // Reset previous titles
-    const titles = [];
+    // Initialize/reset previous titles
+    let titles = [];
     const result = [];
 
-    const headlines = await page.$$(".NiLAwe.mi8Lec.jzZQmc.Oc0wGc.R7GTQ.keNKEd.j7vNaf");
+    // This part scrapes the headline group that has 3 headlines that fall under a category.
+    let headlines = await page.$$(".NiLAwe.mi8Lec.jzZQmc.Oc0wGc.R7GTQ.keNKEd.j7vNaf");
     for (let i of headlines){
-        titles.push(await i.$$(".DY5T1d.RZIKme"))
+        titles.push(await i.$$(".DY5T1d.RZIKme"));
     }
     for (let j=0; j < titles.length; j++) {
         for (let k of titles[j]){
             result.push(await k.evaluate(x => x.textContent));
             }
     }
-        
+
+    // This part scrapes the individual headlines.
+    titles = [];
+    headlines = await page.$$(".NiLAwe.y6IFtc.R7GTQ.keNKEd.j7vNaf.nID9nc");
+    for (let i of headlines){
+        titles.push(await i.$(".ipQwMb.ekueJc.RD0gLb"));
+    }
+    for (let j of titles){
+        result.push(await j.evaluate(x => x.textContent));
+    }
+    
+
+
+    // TESTING FOR SCRAPING THE GROUPS OF HEADLINES.
     // results = await Promise.all(titles.map(async (t) => {
     //     return await t.evaluate(x => x.textContent);
     // }))
