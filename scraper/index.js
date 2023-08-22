@@ -1,7 +1,5 @@
 import puppeteer from "puppeteer";
 
-const titles = [];
-
 // Testing on Apple on news.google.com: https://news.google.com/search?q=apple&hl=en-ID&gl=ID&ceid=ID%3Aen
 // Puppeteer is a promise-based API.
 
@@ -36,7 +34,8 @@ const getTitles = async () => {
     await browser.close();
 };
 
-getTitles();
+
+export const data = JSON.stringify(getTitles());
 
 
 // Difference between const and function is that function can be declared anywhere and used anywhere while const has to be in chronological
@@ -67,8 +66,6 @@ async function loadLatestTitles(page) {
         result.push(await j.evaluate(x => x.textContent));
     }
     
-
-
     // TESTING FOR SCRAPING THE GROUPS OF HEADLINES.
     // results = await Promise.all(titles.map(async (t) => {
     //     return await t.evaluate(x => x.textContent);
@@ -80,6 +77,4 @@ async function loadLatestTitles(page) {
     // const recentHeadlines = await recentHeadNews.$$(".hT8rr");
 
     return result;
-
-
-}
+};
