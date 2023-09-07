@@ -1,9 +1,13 @@
 import puppeteer from "puppeteer";
+import fs from 'fs';
 
 // Testing on Apple on news.google.com: https://news.google.com/search?q=apple&hl=en-ID&gl=ID&ceid=ID%3Aen
 // Puppeteer is a promise-based API.
 
+// This method retrieves the titles and then writes the JSON data into a file using fs (node module.)
 const getTitles = async () => {
+
+    // Creating puppeteer browser instance
     const browser = await puppeteer.launch({
         headless: false,
         defaultViewport: null,
@@ -15,7 +19,23 @@ const getTitles = async () => {
         waitUntil: "domcontentloaded",
     });
 
-    console.log(await loadLatestTitles(page));
+
+    // Scrapes the data from the website
+    const data = await loadLatestTitles(page);
+
+
+    // Outputs data into console
+    console.log(data);
+    // console.log(data.entries())
+
+
+    // Writes JSON data into test.txt as string (CSV)
+    fs.writeFile("test.txt", JSON.stringify(data), function(err) {
+        if (err) {
+            console.log(err);
+        }
+    })
+
 
     // TESTING QUERY SELECTOR FOR ONE ELEMENT (PLS IGNORE)
     // const headline = await page.evaluate(() => {
@@ -34,8 +54,9 @@ const getTitles = async () => {
     await browser.close();
 };
 
+// Might not need this line anymore
+export const data = JSON.stringify(await getTitles());
 
-export const data = JSON.stringify(getTitles());
 
 
 // Difference between const and function is that function can be declared anywhere and used anywhere while const has to be in chronological
@@ -66,7 +87,7 @@ async function loadLatestTitles(page) {
         result.push(await j.evaluate(x => x.textContent));
     }
     
-    // TESTING FOR SCRAPING THE GROUPS OF HEADLINES.
+    // TESTING FOR SCRAPING THE GROUPS OF HEADLINES (IGNORE PLS).
     // results = await Promise.all(titles.map(async (t) => {
     //     return await t.evaluate(x => x.textContent);
     // }))
