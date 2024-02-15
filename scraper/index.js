@@ -1,13 +1,33 @@
 import puppeteer from "puppeteer";
 import fs from 'fs';
 
+// NOTES
 // Testing on Apple on news.google.com: https://news.google.com/search?q=apple&hl=en-ID&gl=ID&ceid=ID%3Aen
+
 // Puppeteer is a promise-based API.
 
-// This method retrieves the titles and then writes the JSON data into a file using fs (node module.)
-const getTitles = async () => {
+// Difference between const and function is that function can be declared anywhere and used anywhere while const has to be in chronological
+// order (must be declared before being called).
 
-    // Creating puppeteer browser instance
+// NEW CODE - MAKES IT MORE DYNAMIC/SOFT CODING
+// OLD CODE - MIGHT NEED TO CHANGE
+
+
+
+// MAIN method that retrieves titles and writes the JSON data into a file using fs (node module)
+const getTitles = async (config) => {
+
+    // Create a query string (NEW CODE)
+    const queryString = config.queryVars ? makeQueryString(config.queryVars) : '';
+    console.log('queryString:' + queryString)
+
+    // Create a URL string (NEW CODE)
+    const url = `https://news.google.com/search?${queryString}&q=${config.searchTerm}`
+    console.log(`URL: ${url}`)
+
+
+    // https://pptr.dev/ -> Look into arguments to make it more dynamic
+    // Creating puppeteer browser instance (OLD CODE)
     const browser = await puppeteer.launch({
         headless: false,
         defaultViewport: null,
@@ -30,37 +50,38 @@ const getTitles = async () => {
 
 
     // Writes JSON data into test.txt as string (CSV)
-    fs.writeFile("test.txt", JSON.stringify(data), function(err) {
+    fs.writeFile("test1.txt", JSON.stringify(data), function(err) {
         if (err) {
             console.log(err);
         }
     })
-
-
-    // TESTING QUERY SELECTOR FOR ONE ELEMENT (PLS IGNORE)
-    // const headline = await page.evaluate(() => {
-    //     // Fetch the first element with class "quote"
-    //     const quote = document.querySelector(".NiLAwe.mi8Lec.jzZQmc.Oc0wGc.R7GTQ.keNKEd.j7vNaf");
-    
-    //     // Fetch the sub-elements from the previously fetched quote element
-    //     // Get the displayed text and return it (`.innerText`)
-    //     const text = quote.querySelector(".DY5T1d.RZIKme").innerText;
-    
-    //     return text;
-    //   });
-
-    // console.log(headline);
     
     await browser.close();
 };
 
-// Might not need this line anymore
-export const data = JSON.stringify(await getTitles());
+
+// TESTING MAIN FUNCTION (NEW CODE)
+const testQueryConfig = {
+    searchTerm: "Apple",
+    queryVars: {
+        hl:"en-US",
+        gl:"US",
+        ceid:"US:en"
+    }
+}
+
+export const data = JSON.stringify(await getTitles(testQueryConfig));
 
 
 
-// Difference between const and function is that function can be declared anywhere and used anywhere while const has to be in chronological
-// order (must be declared before being called).
+// HELPER FUNCTIONS
+
+// Create a query string (NEW CODE)
+function makeQueryString(query) {
+    return Object.keys(query).map(key => `${key}=${query[key]}`).join('&')
+}
+
+// Load titles of page (OLD CODE)
 async function loadLatestTitles(page) {
     // Initialize/reset previous titles
     let titles = [];
@@ -86,16 +107,7 @@ async function loadLatestTitles(page) {
     for (let j of titles){
         result.push(await j.evaluate(x => x.textContent));
     }
-    
-    // TESTING FOR SCRAPING THE GROUPS OF HEADLINES (IGNORE PLS).
-    // results = await Promise.all(titles.map(async (t) => {
-    //     return await t.evaluate(x => x.textContent);
-    // }))
-    // const title = await headline.$$(".DY5T1d.RZIKme");
-    // // Evaluates the handle element into the text content.
-    // const text = await title.evaluate(x => x.textContent);
-    // const recentHeadNews = await page.$$("ipQwMb ekueJc RD0gLb");
-    // const recentHeadlines = await recentHeadNews.$$(".hT8rr");
 
     return result;
 };
+
