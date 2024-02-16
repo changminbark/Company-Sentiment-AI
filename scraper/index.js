@@ -27,16 +27,44 @@ const getTitles = async (config) => {
 
 
     // https://pptr.dev/ -> Look into arguments to make it more dynamic
-    // Creating puppeteer browser instance (OLD CODE)
+    // Creating puppeteer browser and page instance (NEW CODE)
     const browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         defaultViewport: null,
+        args: [
+            '--disable-extensions-except=/path/to/manifest/folder/',
+            '--load-extension=/path/to/manifest/folder/'
+        ]
     });
     
+    // Configurations for page including viewport dimensions, UA string (for website to identify browser), setting cookies,
+    // and setting request interceptions so that on navigation requests, headers will be set.
+    // The request interception portion is largely sourced from Lewis Donovan's work.
+    // Setting the cookie to consent minimizes activity that doesn't involve the user's consent: https://support.google.com/analytics/answer/9976101?hl=en
     const page = await browser.newPage();
-
-    await page.goto("https://news.google.com/search?q=apple&hl=en-ID&gl=ID&ceid=ID%3Aen", {
-        waitUntil: "domcontentloaded",
+    page.setViewport({ width: 1366, height: 784});
+    page.setUserAgent("Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:35.0) Gecko/20100101 Firefox/35.0");
+    page.setRequestInterception(true);
+    page.on("request", interceptedRequest => {
+        if (!interceptedRequest.isNavigationRequest()) {
+            interceptedRequest.continue()
+            return
+        }
+        const headers = interceptedRequest.headers()
+        headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3"
+        headers["Accept-Enconding"] = "gzip"
+        headers["Accept-Language"] = "en-US,en;q=0.9,es;q=0.8"
+        headers["Upgrade-Insecure-Requests"] = 1
+        headers["Referer"] = "https://www.google.com"
+        interceptedRequest.continue({headers})
+    });
+    await page.setCookie({
+        name: "CONSENT",
+        value: `YES+cb.${new Date().toISOString().split('T')[0].replace(/-/g,'')}-04-p0.en-GB+FX+667`,
+        domain: ".google.com"
+    });
+    await page.goto(url, {
+        waitUntil: "networkidle2",
     });
 
 
